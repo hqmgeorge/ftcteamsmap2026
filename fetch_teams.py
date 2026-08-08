@@ -34,7 +34,7 @@ AUTH_KEY = "1EEEE6E6-C13A-46BE-B060-5DE2DB7BFCE1"
 
 # BASE_URL = "https://ftc-api.firstinspires.org/v2.0"
 
-SEASON = 2025
+SEASON = 2026
 OUTPUT = "ftc_teams_raw.json"
 
 _token = base64.b64encode(f"{USERNAME}:{AUTH_KEY}".encode()).decode()
