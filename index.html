@@ -166,7 +166,6 @@
             flex-shrink: 0;
         }
 
-        /* ── Correction form (new) ─────────────────────────────────────────── */
         .report-link {
             display: inline-block;
             margin-top: 8px;
@@ -331,7 +330,6 @@
         </div>
     </div>
 
-    <!-- ── Correction submission modal (new) ─────────────────────────────── -->
     <div id="correction-modal">
         <div id="correction-box">
             <h3>📍 Report wrong location</h3>
@@ -574,17 +572,16 @@
 
         // ── Map init ──────────────────────────────────────────────────────────────────
         const map = L.map('map', { preferCanvas: true }).setView([20, 10], 2);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '© <a href="https://www.openstreetmap.org/">OSM</a> © <a href="https://carto.com/">CARTO</a>',
-            subdomains: 'abcd', maxZoom: 19
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19
         }).addTo(map);
 
         let allTeams = [];
-        let pendingCorrectionTeam = null; // team number currently being reported
+        let pendingCorrectionTeam = null;
         let clusterGroup = L.markerClusterGroup({ chunkedLoading: true });
         map.addLayer(clusterGroup);
 
-        // expose functions the inline HTML (onclick, popup buttons) needs
         window.resetFilters = resetFilters;
         window.openCorrectionModal = openCorrectionModal;
 
@@ -610,7 +607,7 @@
                 const byTeam = {};
                 snap.forEach(doc => {
                     const d = doc.data();
-                    byTeam[d.teamNumber] = d; // last approved correction wins
+                    byTeam[d.teamNumber] = d;
                 });
 
                 allTeams = allTeams.map(t => {
@@ -627,7 +624,6 @@
                 });
             } catch (err) {
                 console.error('Could not load corrections:', err);
-                // fail silently — map still works with original data
             }
         }
 
@@ -679,13 +675,18 @@
                 if (country && t.country !== country) return false;
                 if (state && t.state !== state) return false;
                 if (q) {
-                    const stateFull = getStateName(t.country, t.state).toLowerCase();
-                    const countryFull = getCountryName(t.country).toLowerCase();
-                    const haystack = [
-                        String(t.number || ''), t.nameFull, t.nameShort,
-                        t.city, t.state, stateFull, t.country, countryFull, t.school,
-                    ].filter(Boolean).join(' ').toLowerCase();
-                    if (!haystack.includes(q)) return false;
+                    const isNumeric = /^\d+$/.test(q);
+                    if (isNumeric) {
+                        if (String(t.number) !== q) return false;
+                    } else {
+                        const stateFull = getStateName(t.country, t.state).toLowerCase();
+                        const countryFull = getCountryName(t.country).toLowerCase();
+                        const haystack = [
+                            String(t.number || ''), t.nameFull, t.nameShort,
+                            t.city, t.state, stateFull, t.country, countryFull, t.school,
+                        ].filter(Boolean).join(' ').toLowerCase();
+                        if (!haystack.includes(q)) return false;
+                    }
                 }
                 return true;
             });
@@ -736,7 +737,7 @@
             return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
 
-        // ── Correction modal logic (new) ────────────────────────────────────────────
+        // ── Correction modal logic ────────────────────────────────────────────────────
         const modal = document.getElementById('correction-modal');
         const statusEl = document.getElementById('correction-status');
 
@@ -792,7 +793,6 @@
             }
         });
 
-        // click outside box to close
         modal.addEventListener('click', (e) => {
             if (e.target === modal) modal.classList.remove('open');
         });
