@@ -76,7 +76,7 @@ def main():
     corrections_ref = db.collection("corrections")
 
     # approved corrections missing lat/lng
-    query = corrections_ref.where("status", "==", True).where("lat", "==", None)
+    query = corrections_ref.where("status", "==", "approved").where("lat", "==", None)
     docs = list(query.stream())
 
     print(f"Found {len(docs)} approved correction(s) needing geocoding.\n")
