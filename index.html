@@ -602,7 +602,7 @@
         // ── Fetch approved corrections from Firestore and merge into allTeams ──────────
         async function applyApprovedCorrections() {
             try {
-                const q = query(collection(db, 'corrections'), where('status', '==', true));
+                const q = query(collection(db, 'corrections'), where('status', '==', "approved"));
                 const snap = await getDocs(q);
                 const byTeam = {};
                 snap.forEach(doc => {
