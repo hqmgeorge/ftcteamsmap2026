@@ -94,12 +94,17 @@ def main():
         city = data.get("city")
         state = data.get("state")
         country = data.get("country")
+        name_full = data.get("nameFull")      # new
+        name_short = data.get("nameShort")    # new
 
         label = f"Team #{team_number}: {', '.join(filter(None, [city, state, country])) or '(no location given)'}"
         print(label)
 
         if not (city or state or country):
-            print("    ⚠ No location fields provided — skipping (note-only correction)")
+            if name_full or name_short:       # new
+                print("    ℹ Name-only correction, no geocoding needed")
+            else:
+                print("    ⚠ No location fields provided — skipping (note-only correction)")
             continue
 
         lat, lng = geocode_with_fallback(city, state, country)
