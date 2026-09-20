@@ -602,7 +602,7 @@
         // ── Fetch approved corrections from Firestore and merge into allTeams ──────────
         async function applyApprovedCorrections() {
             try {
-                const q = query(collection(db, 'corrections'), where('status', '==', 'approved'));
+                const q = query(collection(db, 'corrections'), where('status', '==', true));
                 const snap = await getDocs(q);
                 const byTeam = {};
                 snap.forEach(doc => {
@@ -618,8 +618,8 @@
                         city: c.city || t.city,
                         state: c.state || t.state,
                         country: c.country || t.country,
-                        lat: (c.lat != null) ? c.lat : t.lat,
-                        lng: (c.lng != null) ? c.lng : t.lng,
+                        lat: (c.lat != null) ? parseFloat(c.lat) : t.lat,
+                        lng: (c.lng != null) ? parseFloat(c.lng) : t.lng,
                     };
                 });
             } catch (err) {
