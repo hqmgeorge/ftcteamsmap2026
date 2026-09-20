@@ -344,6 +344,14 @@
             <label for="correction-country">Correct country</label>
             <input id="correction-country" type="text" placeholder="e.g. USA" />
 
+            
+
+            <label for="correction-name-full">Correct full name</label>
+            <input id="correction-name-full" type="text" placeholder="e.g. Ann Arbor Robotics Club" />
+            
+            <label for="correction-name-short">Correct short name</label>
+            <input id="correction-name-short" type="text" placeholder="e.g. AARC" />
+
             <label for="correction-note">Note (optional)</label>
             <textarea id="correction-note" placeholder="Anything else we should know?"></textarea>
 
@@ -618,6 +626,8 @@
                         city: c.city || t.city,
                         state: c.state || t.state,
                         country: c.country || t.country,
+                        nameFull: c.nameFull || t.nameFull,
+                        nameShort: c.nameShort || t.nameShort,
                         lat: (c.lat != null) ? parseFloat(c.lat) : t.lat,
                         lng: (c.lng != null) ? parseFloat(c.lng) : t.lng,
                     };
@@ -747,6 +757,8 @@
             document.getElementById('correction-city').value = '';
             document.getElementById('correction-state').value = '';
             document.getElementById('correction-country').value = '';
+            document.getElementById('correction-name-full').value = '';
+            document.getElementById('correction-name-short').value = '';
             document.getElementById('correction-note').value = '';
             statusEl.textContent = '';
             modal.classList.add('open');
@@ -760,6 +772,8 @@
             const city = document.getElementById('correction-city').value.trim();
             const state = document.getElementById('correction-state').value.trim();
             const country = document.getElementById('correction-country').value.trim();
+            const nameFull = document.getElementById('correction-name-full').value.trim();
+            const nameShort = document.getElementById('correction-name-short').value.trim();
             const note = document.getElementById('correction-note').value.trim();
 
             if (!city && !state && !country && !note) {
@@ -777,6 +791,8 @@
                     city: city || null,
                     state: state || null,
                     country: country || null,
+                    nameFull: nameFull || null,
+                    nameShort: nameShort || null,
                     lat: null,
                     lng: null,
                     note: note || null,
