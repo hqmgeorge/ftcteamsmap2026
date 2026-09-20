@@ -609,34 +609,49 @@
 
         // ── Fetch approved corrections from Firestore and merge into allTeams ──────────
         async function applyApprovedCorrections() {
-            try {
-                const q = query(collection(db, 'corrections'), where('status', '==', "approved"));
-                const snap = await getDocs(q);
-                const byTeam = {};
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    byTeam[d.teamNumber] = d;
-                });
+    try {
+        const q = query(collection(db, 'corrections'), where('status', '==', 'approved'));
+        const snap = await getDocs(q);
 
-                allTeams = allTeams.map(t => {
-                    const c = byTeam[t.number];
-                    if (!c) return t;
-                    return {
-                        ...t,
-                        city: c.city || t.city,
-                        state: c.state || t.state,
-                        country: c.country || t.country,
-                        nameFull: c.nameFull || t.nameFull,
-                        nameShort: c.nameShort || t.nameShort,
-                        lat: (c.lat != null) ? parseFloat(c.lat) : t.lat,
-                        lng: (c.lng != null) ? parseFloat(c.lng) : t.lng,
-                    };
-                });
-            } catch (err) {
-                console.error('Could not load corrections:', err);
+        // oldest first, so newer corrections override older ones
+        const docs = snap.docs
+            .map(d => d.data())
+            .sort((a, b) =>
+                (a.submittedAt?.toMillis?.() ?? 0) - (b.submittedAt?.toMillis?.() ?? 0));
+
+        // merge all approved corrections per team, field by field
+        const byTeam = {};
+        docs.forEach(d => {
+            const merged = byTeam[d.teamNumber] || {};
+            ['nameFull', 'nameShort', 'city', 'state', 'country'].forEach(k => {
+                if (d[k] != null && d[k] !== '') merged[k] = d[k];
+            });
+            // a location change carries its own coordinates (or none, if not geocoded yet)
+            if (d.city || d.state || d.country) {
+                merged.lat = d.lat ?? null;
+                merged.lng = d.lng ?? null;
             }
-        }
+            byTeam[d.teamNumber] = merged;
+        });
 
+        allTeams = allTeams.map(t => {
+            const c = byTeam[t.number];
+            if (!c) return t;
+            return {
+                ...t,
+                nameFull: c.nameFull || t.nameFull,
+                nameShort: c.nameShort || t.nameShort,
+                city: c.city || t.city,
+                state: c.state || t.state,
+                country: c.country || t.country,
+                lat: (c.lat != null) ? parseFloat(c.lat) : t.lat,
+                lng: (c.lng != null) ? parseFloat(c.lng) : t.lng,
+            };
+        });
+    } catch (err) {
+        console.error('Could not load corrections:', err);
+    }
+}
         // ── Populate country dropdown ─────────────────────────────────────────────────
         function populateCountries(teams) {
             const rawCountries = [...new Set(teams.map(t => t.country).filter(Boolean))];
